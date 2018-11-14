@@ -165,49 +165,47 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
             }
         out
         }   
-    if (ncol(affected)==1) {
-        polylist <- list(
+
+        basepolylist <- list(
             square = list(list(x=c(-1, -1, 1,1)/2,  y=c(0, 1, 1, 0))),
             circle = list(list(x=.5* cos(seq(0, 2*pi, length=50)),
                                y=.5* sin(seq(0, 2*pi, length=50)) + .5)),
             diamond = list(list(x=c(0, -.5, 0, .5), y=c(0, .5, 1, .5))),
             triangle= list(list(x=c(0, -.56, .56),  y=c(0, 1, 1))))
-        }
-    else {
-        nc <- ncol(affected)
-        square <- polyfun(nc, list(x=c(-.5, -.5, .5, .5), y=c(-.5, .5, .5, -.5),
-                                    theta= -c(3,5,7,9)* pi/4))
-        circle <- circfun(nc)
-        diamond <-  polyfun(nc, list(x=c(0, -.5, 0, .5), y=c(-.5, 0, .5,0),
-                                    theta= -(1:4) *pi/2))
-        triangle <- polyfun(nc, list(x=c(-.56, .0, .56), y=c(-.5, .5, -.5),
-                                     theta=c(-2, -4, -6) *pi/3))
-        polylist <- list(square=square, circle=circle, diamond=diamond, 
-                         triangle=triangle)
-        }
 
-      drawbox<- function(x, y, sex, affected, status, col, polylist,
-                density, angle, boxw, boxh) {
+        nc <- ncol(affected)
+        
+        sectionedpolylist <- list(
+          square= polyfun(nc, list(x=c(-.5, -.5, .5, .5), y=c(-.5, .5, .5, -.5),
+                    theta= -c(3,5,7,9)* pi/4)), 
+          circle= circfun(nc),
+          diamond=polyfun(nc, list(x=c(0, -.5, 0, .5), y=c(-.5, 0, .5,0),
+                    theta= -(1:4) *pi/2)), 
+        triangle=polyfun(nc, list(x=c(-.56, .0, .56), y=c(-.5, .5, -.5),
+                    theta=c(-2, -4, -6) *pi/3)))
+
+      drawbox<- function(x, y, sex, affected, status, col, basepolylist,
+                sectionedpolylist, density, angle, boxw, boxh) {
             for (i in 1:length(affected)) {
                 if (affected[i]==0) {
-                    polygon(x + (polylist[[sex]])[[i]]$x *boxw,
-                            y + (polylist[[sex]])[[i]]$y *boxh,
+                    polygon(x + (basepolylist[[sex]])[[1]]$x *boxw,
+                            y + (basepolylist[[sex]])[[1]]$y *boxh,
                             col=NA, border=col)
                     }
                 
                 if(affected[i]==1) {
                   ## else {
-                  polygon(x + (polylist[[sex]])[[i]]$x * boxw,
-                          y + (polylist[[sex]])[[i]]$y * boxh,
+                  polygon(x + (sectionedpolylist[[sex]])[[i]]$x * boxw,
+                          y + (sectionedpolylist[[sex]])[[i]]$y * boxh,
                           col=col, border=col, density=density[i], angle=angle[i])            
                 }
                 if(affected[i] == -1) {
-                  polygon(x + (polylist[[sex]])[[i]]$x * boxw,
-                          y + (polylist[[sex]])[[i]]$y * boxh,
+                  polygon(x + (sectionedpolylist[[sex]])[[i]]$x * boxw,
+                          y + (sectionedpolylist[[sex]])[[i]]$y * boxh,
                           col=NA, border=col)
                   
-                  midx <- x + mean(range(polylist[[sex]][[i]]$x*boxw))
-                  midy <- y + mean(range(polylist[[sex]][[i]]$y*boxh))
+                  midx <- x + mean(range(sectionedpolylist[[sex]][[i]]$x*boxw))
+                  midy <- y + mean(range(sectionedpolylist[[sex]][[i]]$y*boxh))
                  
                   points(midx, midy, pch="?", cex=min(1, cex*2/length(affected)))
                 }
@@ -225,7 +223,7 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
         for (j in 1:plist$n[i]) {
             k <- plist$nid[i,j]
             drawbox(plist$pos[i,j], i, sex[k], affected[k,],
-                    status[k], col[k], polylist, density, angle,
+                    status[k], col[k], basepolylist, sectionedpolylist, density, angle,
                     boxw, boxh)
             text(plist$pos[i,j], i + boxh + labh*.7, id[k], cex=cex, 
                adj=c(.5,1), ...)
