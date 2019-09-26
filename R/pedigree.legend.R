@@ -2,7 +2,7 @@
 
 pedigree.legend <- function (ped, labels = dimnames(ped$affected)[[2]],
     edges = 200, radius=NULL, location="bottomright", new=TRUE,
-    density = c(-1, 35, 55, 25),  angle = c(90, 65, 40, 0), ...) 
+    density = c(-1, 35, 55, 25),  angle = c(90, 65, 40, 0), col=1, ...) 
 {
    
     naff <- ncol(ped$affected)
@@ -12,7 +12,6 @@ pedigree.legend <- function (ped, labels = dimnames(ped$affected)[[2]],
     ## start at the top, always counter-clockwise, black/white
     init.angle <- 90
     twopi <- 2 * pi
-    col <- 1
 
     default.labels <- paste("affected-", 1:naff, sep='')
     if (is.null(labels)) labels <- default.labels
@@ -72,7 +71,7 @@ pedigree.legend <- function (ped, labels = dimnames(ped$affected)[[2]],
     }
     
     col <- rep(col, length.out = nx)
-    border <- rep(1, length.out = nx)
+    border <- rep(col, length.out = nx)
     lty <- rep(1, length.out = nx)
     angle <- rep(angle, length.out = nx)
     density <- rep(density, length.out = nx)

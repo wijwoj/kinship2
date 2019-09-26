@@ -6,7 +6,8 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
                           packed = TRUE, align = c(1.5,2), width = 8, 
                           density=c(-1, 35,55,25), mar=c(4.1, 1, 4.1, 1),
                           angle=c(90,65,40,0), keep.par=FALSE,
-                          subregion, pconnect=.5, ...)
+                          subregion, pconnect=.5, 
+                          proband=-1, label=x$label, ...)
 {
     Call <- match.call()
     n <- length(x$id)        
@@ -176,16 +177,16 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
         nc <- ncol(affected)
         
         sectionedpolylist <- list(
-          square= polyfun(nc, list(x=c(-.5, -.5, .5, .5), y=c(-.5, .5, .5, -.5),
-                    theta= -c(3,5,7,9)* pi/4)), 
-          circle= circfun(nc),
-          diamond=polyfun(nc, list(x=c(0, -.5, 0, .5), y=c(-.5, 0, .5,0),
-                    theta= -(1:4) *pi/2)), 
-        triangle=polyfun(nc, list(x=c(-.56, .0, .56), y=c(-.5, .5, -.5),
-                    theta=c(-2, -4, -6) *pi/3)))
+            square= polyfun(nc, list(x=c(-.5, -.5, .5, .5), y=c(-.5, .5, .5, -.5),
+                      theta= -c(3,5,7,9)* pi/4)), 
+            circle= circfun(nc),
+            diamond=polyfun(nc, list(x=c(0, -.5, 0, .5), y=c(-.5, 0, .5,0),
+                      theta= -(1:4) *pi/2)), 
+            triangle=polyfun(nc, list(x=c(-.56, .0, .56), y=c(-.5, .5, -.5),
+                      theta=c(-2, -4, -6) *pi/3)))
 
       drawbox<- function(x, y, sex, affected, status, col, basepolylist,
-                sectionedpolylist, density, angle, boxw, boxh) {
+                sectionedpolylist, density, angle, boxw, boxh, id) {
             for (i in 1:length(affected)) {
                 if (affected[i]==0) {
                     polygon(x + (basepolylist[[sex]])[[1]]$x *boxw,
@@ -197,7 +198,7 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
                   ## else {
                   polygon(x + (sectionedpolylist[[sex]])[[i]]$x * boxw,
                           y + (sectionedpolylist[[sex]])[[i]]$y * boxh,
-                          col=col, border=col, density=density[i], angle=angle[i])            
+                          col=col, border=col)            
                 }
                 if(affected[i] == -1) {
                   polygon(x + (sectionedpolylist[[sex]])[[i]]$x * boxw,
@@ -209,6 +210,10 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
                  
                   points(midx, midy, pch="?", cex=min(1, cex*2/length(affected)))
                 }
+              
+                if (id == proband) {
+                  drawarrow(x, y, boxw, boxh, sex)
+                }
                 
               }
             if (status==1) segments(x- .6*boxw, y+1.1*boxh, 
@@ -217,15 +222,20 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
             ##        x+ .6*boxw, y- .1*boxh, col=col)
           }
 
+      drawarrow <- function (x, y, boxw, boxh, sex) {
+        arrows(x-0.4, y+0.15, x-0.2, y+0.1, length=0.1,col = 1)
+      }
 
     sex <- as.numeric(x$sex)
     for (i in 1:maxlev) {
         for (j in 1:plist$n[i]) {
             k <- plist$nid[i,j]
+            thislabel <- ifelse(is.null(label[k]), id[k], label[k])
+
             drawbox(plist$pos[i,j], i, sex[k], affected[k,],
                     status[k], col[k], basepolylist, sectionedpolylist, density, angle,
-                    boxw, boxh)
-            text(plist$pos[i,j], i + boxh + labh*.7, id[k], cex=cex, 
+                    boxw, boxh, id[k])
+            text(plist$pos[i,j], i + boxh + labh*.7, thislabel, cex=cex, 
                adj=c(.5,1), ...)
             }
     }
