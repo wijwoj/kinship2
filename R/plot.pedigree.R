@@ -235,9 +235,16 @@ plot.pedigree <- function(x, id = x$id, status = x$status,
             drawbox(plist$pos[i,j], i, sex[k], affected[k,],
                     status[k], col[k], basepolylist, sectionedpolylist, density, angle,
                     boxw, boxh, id[k])
-            text(plist$pos[i,j], i + boxh + labh*.7, thislabel, cex=cex, 
-               adj=c(.5,1), ...)
+
+            if (n > 40) {
+              text(plist$pos[i,j], i + boxh + labh*.7, thislabel, cex=cex,
+                   adj=c(1,0.5), srt=90, ...)
             }
+            else {
+              text(plist$pos[i,j], i + boxh + labh*.7, thislabel, cex=cex,
+                   adj=c(0.5,1), ...)
+            }
+        }
     }
     maxcol <- ncol(plist$nid)  #all have the same size
     for(i in 1:maxlev) {
